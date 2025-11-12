@@ -1,0 +1,32 @@
+name = "maccy-sync-backend"
+main = "src/index.ts"
+compatibility_date = "2024-11-12"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "maccy-sync-db"
+database_id = "preview_id" # Will be replaced after wrangler d1 create
+
+# Environment variables
+[vars]
+ENVIRONMENT = "development"
+MAX_ITEMS_PER_SYNC = "100"
+RATE_LIMIT_REQUESTS_PER_HOUR = "1000"
+RATE_LIMIT_REQUESTS_PER_MINUTE = "100"
+
+# Production environment
+[env.production]
+name = "maccy-sync-backend-prod"
+vars = { ENVIRONMENT = "production" }
+
+# Durable Objects for rate limiting
+[[durable_objects.bindings]]
+name = "RATE_LIMITER"
+class_name = "RateLimiter"
+script_name = "maccy-sync-backend"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["RateLimiter"]

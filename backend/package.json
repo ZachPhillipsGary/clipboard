@@ -1,0 +1,31 @@
+{
+  "name": "maccy-sync-backend",
+  "version": "1.0.0",
+  "description": "End-to-end encrypted clipboard sync backend for Maccy using Cloudflare Workers",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "db:create": "wrangler d1 create maccy-sync-db",
+    "db:migrate": "wrangler d1 migrations apply maccy-sync-db --local",
+    "db:migrate:prod": "wrangler d1 migrations apply maccy-sync-db --remote",
+    "db:console": "wrangler d1 execute maccy-sync-db --local --command",
+    "cf:login": "wrangler login",
+    "lint": "eslint src",
+    "format": "prettier --write src"
+  },
+  "dependencies": {
+    "@cloudflare/workers-types": "^4.20241127.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "wrangler": "^3.96.0",
+    "typescript": "^5.7.2",
+    "prettier": "^3.4.2",
+    "eslint": "^9.16.0",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0"
+  }
+}

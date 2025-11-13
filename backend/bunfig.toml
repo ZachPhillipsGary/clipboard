@@ -1,9 +1,4 @@
-[test]
-# Test configuration for Bun
-coverage = true
-coverageDir = "./coverage"
-coverageReporter = ["text", "lcov"]
-preload = []
+# Bun configuration file
 
 [install]
 # Install configuration

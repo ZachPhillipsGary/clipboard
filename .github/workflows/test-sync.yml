@@ -48,14 +48,14 @@ jobs:
         run: bun run lint || echo "Linter not configured, skipping"
         continue-on-error: true
 
-      - name: Run tests
-        run: bun test
-
       - name: Check TypeScript compilation
         run: bunx tsc --noEmit
 
+      - name: Run tests
+        run: bun test
+
       - name: Test coverage report
-        run: bun test --coverage || echo "Coverage not configured"
+        run: bun test --coverage || echo "Coverage report skipped"
         continue-on-error: true
 
   # macOS app tests
@@ -72,6 +72,11 @@ jobs:
 
       - name: Show Xcode version
         run: xcodebuild -version
+
+      - name: Resolve Swift Package Manager dependencies
+        run: |
+          rm -f Maccy.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+          xcodebuild -resolvePackageDependencies -project Maccy.xcodeproj -scheme Maccy
 
       - name: Clean build folder
         run: xcodebuild clean -project Maccy.xcodeproj -scheme Maccy
@@ -153,6 +158,14 @@ jobs:
 
       - name: List available simulators
         run: xcrun simctl list devices available
+
+      - name: Resolve Swift Package Manager dependencies (iOS)
+        working-directory: ./MaccyViewer
+        run: |
+          if [ -f MaccyViewer.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved ]; then
+            rm -f MaccyViewer.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+            xcodebuild -resolvePackageDependencies -project MaccyViewer.xcodeproj -scheme MaccyViewer || true
+          fi
 
       - name: Build iOS app for testing
         working-directory: ./MaccyViewer

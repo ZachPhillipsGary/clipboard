@@ -73,13 +73,11 @@ jobs:
       - name: Show Xcode version
         run: xcodebuild -version
 
-      - name: Resolve Swift Package Manager dependencies
+      - name: Remove incompatible Package.resolved
         run: |
+          echo "Removing Package.resolved to avoid version 3 compatibility issue with Xcode 15.2"
           rm -f Maccy.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
-          xcodebuild -resolvePackageDependencies -project Maccy.xcodeproj -scheme Maccy
-
-      - name: Clean build folder
-        run: xcodebuild clean -project Maccy.xcodeproj -scheme Maccy
+          ls -la Maccy.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/ || true
 
       - name: Build for testing
         run: |
@@ -159,12 +157,15 @@ jobs:
       - name: List available simulators
         run: xcrun simctl list devices available
 
-      - name: Resolve Swift Package Manager dependencies (iOS)
+      - name: Remove incompatible Package.resolved (iOS)
         working-directory: ./MaccyViewer
         run: |
+          echo "Checking for Package.resolved in iOS project"
           if [ -f MaccyViewer.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved ]; then
+            echo "Removing Package.resolved"
             rm -f MaccyViewer.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
-            xcodebuild -resolvePackageDependencies -project MaccyViewer.xcodeproj -scheme MaccyViewer || true
+          else
+            echo "No Package.resolved found, continuing"
           fi
 
       - name: Build iOS app for testing

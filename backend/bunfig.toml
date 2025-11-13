@@ -1,0 +1,14 @@
+[test]
+# Test configuration for Bun
+coverage = true
+coverageDir = "./coverage"
+coverageReporter = ["text", "lcov"]
+preload = []
+
+[install]
+# Install configuration
+peer = true
+
+[install.cache]
+# Cache dependencies
+dir = "~/.bun/install/cache"

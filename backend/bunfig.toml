@@ -1,0 +1,9 @@
+# Bun configuration file
+
+[install]
+# Install configuration
+peer = true
+
+[install.cache]
+# Cache dependencies
+dir = "~/.bun/install/cache"

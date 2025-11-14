@@ -106,7 +106,7 @@ export async function checkRateLimit(
     // Call Durable Object
     const url = `https://dummy.com/?key=${encodeURIComponent(syncGroupId)}&type=${limitType}&limit=${limit}`;
     const response = await stub.fetch(url);
-    const result = await response.json<RateLimitResult>();
+    const result = (await response.json()) as RateLimitResult;
 
     return result;
   } catch (error) {
@@ -135,14 +135,14 @@ export async function checkRateLimitFallback(
     const windowKey = `${syncGroupId}:${limitType}`;
 
     // Get current window
-    const result = await db
+    const result = (await db
       .prepare(
         `SELECT request_count, window_start
          FROM rate_limits
          WHERE key = ?`
       )
       .bind(windowKey)
-      .first<{ request_count: number; window_start: number }>();
+      .first()) as { request_count: number; window_start: number } | null;
 
     let count = 1;
     let resetAt = now + windowDuration;

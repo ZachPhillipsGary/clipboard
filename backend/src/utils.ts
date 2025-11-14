@@ -28,8 +28,16 @@ export function isValidUUID(uuid: string): boolean {
  * Validate base64 string
  */
 export function isValidBase64(str: string): boolean {
+  // Empty strings are not valid base64 for our purposes
+  if (!str || str.length === 0) {
+    return false;
+  }
+
   try {
-    return btoa(atob(str)) === str;
+    // Check if string is valid base64 by decoding and re-encoding
+    const decoded = atob(str);
+    const reencoded = btoa(decoded);
+    return reencoded === str;
   } catch {
     return false;
   }
@@ -190,7 +198,7 @@ export async function decompress(data: ArrayBuffer): Promise<ArrayBuffer> {
  */
 export function sanitizeDeviceName(name: string): string {
   return name
-    .replace(/[<>'"]/g, '')
+    .replace(/[<>'"()\/]/g, '')
     .trim()
     .substring(0, 100);
 }

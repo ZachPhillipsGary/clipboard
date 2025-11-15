@@ -16,6 +16,10 @@ Maccy works on macOS Sonoma 14 or higher.
 * [Features](#features)
 * [Install](#install)
 * [Usage](#usage)
+* [E2E Encrypted Sync](#e2e-encrypted-sync)
+  * [Overview](#overview)
+  * [Setup](#setup)
+  * [Security](#security)
 * [Advanced](#advanced)
   * [Ignore Copied Items](#ignore-copied-items)
   * [Ignore Custom Copy Types](#ignore-custom-copy-types)
@@ -38,6 +42,7 @@ Maccy works on macOS Sonoma 14 or higher.
 * Keyboard-first
 * Secure and private
 * Native UI
+* **E2E encrypted sync** - Access your clipboard history on iOS devices with zero-knowledge encryption
 * Open source and free
 
 ## Install
@@ -62,6 +67,106 @@ brew install maccy
 10. To disable Maccy and ignore new copies, click on the menu icon with <kbd>OPTION (⌥)</kbd> pressed.
 11. To ignore only the next copy, click on the menu icon with <kbd>OPTION (⌥)</kbd> + <kbd>SHIFT (⇧)</kbd> pressed.
 12. To customize the behavior, check "Preferences…" window, or press <kbd>COMMAND (⌘)</kbd> + <kbd>,</kbd>.
+
+## E2E Encrypted Sync
+
+### Overview
+
+Maccy now supports end-to-end encrypted synchronization, allowing you to securely access your Mac's clipboard history on your iPhone or iPad. All clipboard data is encrypted on your Mac before transmission, ensuring that:
+
+- **Zero-knowledge architecture** - The server never sees your plaintext data
+- **Client-side encryption only** - Encryption keys never leave your devices
+- **Self-hosted backend** - Deploy your own Cloudflare Worker (free tier available)
+- **QR code pairing** - Easy device setup by scanning a QR code
+- **ChaCha20-Poly1305 encryption** - Industry-standard AEAD encryption
+
+### Setup
+
+#### 1. Deploy Backend (Cloudflare Workers)
+
+First, deploy the sync backend to Cloudflare Workers:
+
+```bash
+# Install dependencies
+cd backend
+bun install
+
+# Login to Cloudflare
+wrangler login
+
+# Create and configure D1 database
+bun run db:create
+bun run db:migrate
+
+# Deploy to Cloudflare
+bun run deploy
+```
+
+For detailed backend setup instructions, see [backend/README.md](backend/README.md).
+
+#### 2. Configure macOS App
+
+1. Open Maccy preferences (<kbd>COMMAND (⌘)</kbd> + <kbd>,</kbd>)
+2. Navigate to the **Sync** tab
+3. Enter your Cloudflare Worker URL (e.g., `https://your-worker.workers.dev`)
+4. Click **Enable Sync**
+5. A master encryption key will be generated and stored in your Keychain
+6. Configure sync interval (default: 30 seconds) or enable manual sync only
+
+#### 3. Pair iOS Device
+
+1. Install the MaccyViewer app on your iPhone or iPad (in `MaccyViewer/` directory)
+2. In Maccy on your Mac, click **Show QR Code** in the Sync settings
+3. Open MaccyViewer on your iOS device
+4. Scan the QR code to pair your device
+5. Your clipboard history will automatically sync
+
+The QR code contains:
+- Sync group ID
+- Master encryption key
+- API endpoint URL
+- Device ID
+
+**Security Note**: Display the QR code only in a secure environment and dismiss it immediately after scanning.
+
+### Security
+
+#### Encryption Details
+
+- **Algorithm**: ChaCha20-Poly1305 AEAD (Authenticated Encryption with Associated Data)
+- **Key Size**: 256 bits
+- **Key Storage**: Platform Keychain with `afterFirstUnlock` accessibility
+- **Key Transport**: QR code (ephemeral display only)
+- **Nonce**: 12 bytes, unique per encryption operation
+- **Authentication Tag**: 16 bytes for tamper detection
+
+#### Privacy Guarantees
+
+- **No plaintext logging** - Server logs only contain encrypted blobs and metadata
+- **No PII collection** - No email, phone, or personal information required
+- **Keys never transmitted** - Encryption keys stored locally in device Keychains
+- **TLS 1.3** - All network communication uses modern TLS
+- **Rate limiting** - Backend includes rate limiting to prevent abuse
+
+#### Threat Model
+
+| Threat | Protection |
+|--------|-----------|
+| Server compromise | ✅ All data encrypted client-side |
+| Network interception | ✅ TLS + E2E encryption (defense in depth) |
+| Stolen database backup | ✅ Data useless without keys |
+| Device compromise | ⚠️ OS-level Keychain security |
+| QR code interception | ⚠️ Display briefly in secure environment |
+
+For complete security details, see [SYNC_ARCHITECTURE.md](SYNC_ARCHITECTURE.md).
+
+#### Additional Resources
+
+- **Setup Guide**: [SYNC_SETUP_GUIDE.md](SYNC_SETUP_GUIDE.md) - Complete setup instructions with troubleshooting
+- **Architecture**: [SYNC_ARCHITECTURE.md](SYNC_ARCHITECTURE.md) - Technical architecture and security design
+- **Implementation**: [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) - Development summary and design decisions
+- **Testing**: [TESTING.md](TESTING.md) - Test suite documentation
+- **Backend API**: [backend/README.md](backend/README.md) - API documentation and deployment guide
 
 ## Advanced
 

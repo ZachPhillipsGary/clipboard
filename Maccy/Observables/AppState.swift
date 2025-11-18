@@ -168,6 +168,22 @@ class AppState: Sendable {
             StorageSettingsPane()
           },
           Settings.Pane(
+            identifier: Settings.PaneIdentifier.sync,
+            title: NSLocalizedString("Title", tableName: "SyncSettings", comment: ""),
+            toolbarIcon: NSImage.arrowtriangle2circlepath!
+          ) {
+            if #available(macOS 14.0, *) {
+              SyncSettingsPane(
+                syncService: SyncService(
+                  modelContext: Storage.shared.context,
+                  storage: Storage.shared
+                )
+              )
+            } else {
+              Text("Sync requires macOS 14.0 or later")
+            }
+          },
+          Settings.Pane(
             identifier: Settings.PaneIdentifier.appearance,
             title: NSLocalizedString("Title", tableName: "AppearanceSettings", comment: ""),
             toolbarIcon: NSImage.paintpalette!

@@ -7,6 +7,10 @@ extension NSImage {
   static let pincircle = NSImage(systemSymbolName: "pin.circle", accessibilityDescription: "pin.cirlce")
   static let nosign = NSImage(systemSymbolName: "nosign", accessibilityDescription: "nosign")
   static let gearshape2 = NSImage(systemSymbolName: "gearshape.2", accessibilityDescription: "gearshape2")
+  static let arrowtriangle2circlepath = NSImage(
+    systemSymbolName: "arrow.triangle.2.circlepath",
+    accessibilityDescription: "sync"
+  )
 }
 
 extension NSImage.Name {
